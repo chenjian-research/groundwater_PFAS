@@ -1,0 +1,272 @@
+import pandas as pd
+import numpy as np
+from sklearn.cluster import KMeans
+dataset = pd.read_csv(r'D:\1work\0 Postdoc\0_Europe_groundwater\GISdata\prediction\traindata1.csv')
+X = dataset.drop(['Risk'], axis=1)
+X.fillna(0, inplace=True)
+y = dataset['Risk']
+locations = dataset[['Longitude', 'Latitude']]
+feature_names = X.columns.tolist()
+n_clusters = 24  
+kmeans = KMeans(n_clusters=n_clusters, random_state=4564)
+clusters = kmeans.fit_predict(locations)
+dataset['cluster'] = clusters  
+cluster_stats = dataset.groupby('cluster')['Risk'].agg(['count', 'sum'])
+pos_clusters = cluster_stats[cluster_stats['sum'] > 0].index.tolist()
+non_pos_clusters = cluster_stats[cluster_stats['sum'] == 0].index.tolist()
+np.random.seed(1432)
+np.random.shuffle(pos_clusters)
+np.random.shuffle(non_pos_clusters)
+n_train = int(n_clusters * 0.7)
+n_test = n_clusters - n_train
+n_pos_train = int(len(pos_clusters) * 0.7)  
+n_pos_test = len(pos_clusters) - n_pos_train
+train_pos_clusters = pos_clusters[:n_pos_train]
+test_pos_clusters = pos_clusters[n_pos_train:]
+
+n_non_train = n_train - len(train_pos_clusters)
+n_non_test = n_test - len(test_pos_clusters)
+train_non_pos_clusters = non_pos_clusters[:n_non_train]
+test_non_pos_clusters = non_pos_clusters[n_non_train : n_non_train + n_non_test]
+
+train_clusters = train_pos_clusters + train_non_pos_clusters
+test_clusters = test_pos_clusters + test_non_pos_clusters
+
+train_mask = dataset['cluster'].isin(train_clusters)
+test_mask = dataset['cluster'].isin(test_clusters)
+X_train = X[train_mask]
+y_train = y[train_mask]
+X_test = X[test_mask]
+y_test = y[test_mask]
+
+
+import geopandas as gpd
+import matplotlib.pyplot as plt
+import numpy as np
+shp_fp = r'D:\1work\0 Postdoc\1-欧洲PFAS\gis\europecountry3.shp'
+europe = gpd.read_file(shp_fp)
+fig, ax = plt.subplots(figsize=(9,9))
+europe.plot(ax=ax, color='none', edgecolor='gray', linewidth=0.8, alpha=0.7)
+scatter = ax.scatter(
+    dataset['Longitude'], dataset['Latitude'], 
+    c=dataset['cluster'], cmap='tab10', s=10, alpha=0.7
+)
+ax.set_xlabel('Longitude')
+ax.set_ylabel('Latitude')
+
+for cid in np.unique(dataset['cluster']):
+    block = dataset[dataset['cluster'] == cid]
+    x_mean = block['Longitude'].mean()
+    y_mean = block['Latitude'].mean()
+    ax.text(x_mean, y_mean, str(cid), fontsize=10, color='black', weight='bold',
+            ha='center', va='center', bbox=dict(facecolor='white', edgecolor='none', alpha=0.6))
+plt.colorbar(scatter, ax=ax, label='Cluster ID')
+plt.show()
+
+from sklearn.preprocessing import StandardScaler
+from imblearn.over_sampling import SMOTE
+
+scaler = StandardScaler()
+X_train_scaled = scaler.fit_transform(X_train)
+X_test_scaled = scaler.transform(X_test)
+
+smote = SMOTE(random_state=1412)
+X_train_balanced, y_train_balanced = smote.fit_resample(X_train_scaled, y_train)
+
+import numpy as np
+import xgboost as xgb
+from sklearn.model_selection import KFold
+from sklearn.metrics import roc_auc_score, accuracy_score, recall_score, confusion_matrix
+from sklearn.model_selection import cross_val_score, StratifiedKFold
+
+kf = KFold(n_splits=10, shuffle=True, random_state=111)
+cv_auc, cv_acc, cv_recall, cv_specificity = [], [], [], []
+
+for fold, (train_idx, val_idx) in enumerate(kf.split(X_train_balanced)):
+    X_tr, X_val = X_train_balanced[train_idx], X_train_balanced[val_idx]
+    y_tr, y_val = y_train_balanced[train_idx], y_train_balanced[val_idx]
+    model = xgb.XGBClassifier(use_label_encoder=False, eval_metric='logloss', random_state=fold)
+    model.fit(X_tr, y_tr)    
+    val_pred_prob = model.predict_proba(X_val)[:, 1]
+    val_pred = (val_pred_prob > 0.5).astype(int)
+
+    auc = roc_auc_score(y_val, val_pred_prob)
+    acc = accuracy_score(y_val, val_pred)
+    recall = recall_score(y_val, val_pred)  # sensitivity
+    tn, fp, fn, tp = confusion_matrix(y_val, val_pred).ravel()
+    specificity = tn / (tn + fp)
+    cv_auc.append(auc)
+    cv_acc.append(acc)
+    cv_recall.append(recall)
+    cv_specificity.append(specificity)
+    print(f"Fold {fold+1}: AUC={auc:.3f}, ACC={acc:.3f}, Sensitivity={recall:.3f}, Specificity={specificity:.3f}")
+print("AUC:         %.4f" % np.mean(cv_auc))
+print("Accuracy:    %.4f" % np.mean(cv_acc))
+print("Sensitivity: %.4f" % np.mean(cv_recall))
+print("Specificity: %.4f" % np.mean(cv_specificity))
+
+model = xgb.XGBClassifier(
+    use_label_encoder=False,eval_metric='logloss',random_state=888,
+    learning_rate=0.001, n_estimators=900,max_depth=7,gamma=0,subsample=0.5,
+    colsample_bytree=1,min_child_weight=11,reg_alpha=4,reg_lambda=2)
+model.fit(X_train_balanced, y_train_balanced)
+test_pred_prob = model.predict_proba(X_test_scaled)[:, 1]
+test_pred = (test_pred_prob > 0.5).astype(int)
+auc = roc_auc_score(y_test, test_pred_prob)
+acc = accuracy_score(y_test, test_pred)
+recall = recall_score(y_test, test_pred)
+tn, fp, fn, tp = confusion_matrix(y_test, test_pred).ravel()
+specificity = tn / (tn + fp)
+
+print("AUC:         %.4f" % auc)
+print("Accuracy:    %.4f" % acc)
+print("Sensitivity: %.4f" % recall)
+print("Specificity: %.4f" % specificity)
+
+import numpy as np
+import matplotlib.pyplot as plt
+from sklearn.metrics import roc_curve
+
+fpr, tpr, thresholds = roc_curve(y_test, test_pred_prob)
+specificities = 1 - fpr
+
+sensitivity_specificity_diff = np.abs(tpr - specificities)
+equal_ss_idx = np.argmin(sensitivity_specificity_diff)
+equal_ss_threshold = thresholds[equal_ss_idx]
+sensitivity_at_equal_ss = tpr[equal_ss_idx]
+specificity_at_equal_ss = specificities[equal_ss_idx]
+
+plt.figure(figsize=(5, 4))
+plt.plot(thresholds, tpr, label='Sensitivity', color='blue')
+plt.plot(thresholds, specificities, label='Specificity', color='green')
+
+plt.scatter(equal_ss_threshold, sensitivity_at_equal_ss, color='red', zorder=2, label='Sensitivity=Specificity')
+
+plt.axvline(x=equal_ss_threshold, color='red', linestyle='--', linewidth=1.5)
+
+plt.annotate(
+    f"Cutoff={equal_ss_threshold:.2f}\nSensitivity=Specificity={sensitivity_at_equal_ss:.2f}",
+    (equal_ss_threshold, sensitivity_at_equal_ss),
+    textcoords="offset points", xytext=(90,-20), ha='center', color='red',
+    fontsize=14, fontname='Times New Roman'
+)
+plt.xlabel('Threshold', fontsize=14, fontname='Times New Roman')
+plt.ylabel('Score', fontsize=14, fontname='Times New Roman')
+plt.title('Sensitivity & Specificity vs. Threshold', fontsize=14, fontname='Times New Roman')
+plt.legend(loc='best', fontsize=14, prop={'family': 'Times New Roman'})
+plt.grid(True)
+plt.xticks(fontsize=14, fontname='Times New Roman')
+plt.yticks(fontsize=14, fontname='Times New Roman')
+plt.tight_layout() 
+plt.show()
+
+import sqlite3
+import pandas as pd
+
+conn = sqlite3.connect(r'D:\1work\0 Postdoc\0_Europe_groundwater\GISdata\prediction\ML_output.db')
+query = "SELECT * FROM ML_data"
+data_pred = pd.read_sql_query(query, conn)
+conn.close()
+features_pred = data_pred.iloc[:, 1:33]
+X_pred_scaled = scaler.transform(features_pred)
+features_pred = features_pred.fillna(0, inplace=True)
+probabilities = model.predict_proba(X_pred_scaled)[:, 1]
+predictions = (probabilities >= 0.4071).astype(int)
+results_df = pd.DataFrame({
+    'id': range(1, len(data_pred) + 1),
+    'Prediction': predictions,
+    'Probability_1': probabilities
+})
+
+output_db_path = r'D:\1work\0 Postdoc\0_Europe_groundwater\GISdata\prediction\ML_result.db'
+conn = sqlite3.connect(output_db_path)
+results_df.to_sql('predictions', conn, if_exists='replace', index=False)
+conn.close()
+print(results_df.head())
+
+print("Number of predictions for class 0: ", sum(results_df['Prediction'] == 0))
+print("Number of predictions for class 1: ", sum(results_df['Prediction'] == 1))
+
+
+import sqlite3
+import pandas as pd
+import numpy as np
+from sklearn.preprocessing import StandardScaler
+import xgboost as xgb
+
+conn = sqlite3.connect(r'D:\1work\0 Postdoc\0_Europe_groundwater\GISdata\prediction\ML_output.db')
+query = "SELECT * FROM ML_data"
+data_pred = pd.read_sql_query(query, conn)
+conn.close()
+features_pred = data_pred.iloc[:, 1:33]
+
+X_pred_scaled = scaler.transform(features_pred)
+
+n_iterations = 100
+predictions = np.zeros((n_iterations, len(X_pred_scaled)), dtype=np.float32)
+
+for i in range(n_iterations):
+
+    indices = np.random.choice(len(X_train_balanced), len(y_train_balanced), replace=True)
+    X_resample = X_train_balanced[indices]
+    y_resample = y_train_balanced[indices]
+
+    model = xgb.XGBClassifier(use_label_encoder=False,eval_metric='logloss',random_state=i,
+                              learning_rate=0.001, n_estimators=900,max_depth=7,gamma=0,subsample=0.5,
+                              colsample_bytree=1,min_child_weight=11,reg_alpha=4,reg_lambda=2)
+    model.fit(X_resample, y_resample)
+
+
+    preds = model.predict_proba(X_pred_scaled)[:, 1]
+    predictions[i, :] = preds
+
+
+mean_predictions = np.mean(predictions, axis=0)
+std_predictions = np.std(predictions, axis=0)
+
+for i in range(len(mean_predictions)):
+    print(f"Sample {i + 1} - Mean Prediction: {mean_predictions[i]:.4f}, Std Dev: {std_predictions[i]:.4f}")
+
+results = pd.DataFrame({
+    'id': np.arange(1, len(mean_predictions) + 1),
+    'Mean_pred': mean_predictions,
+    'Std_Dev': std_predictions,
+})
+
+
+output_db_path = r'D:\1work\0 Postdoc\0_Europe_groundwater\GISdata\prediction\Std_Dev.db'
+conn = sqlite3.connect(output_db_path)
+results.to_sql('Std_Dev', conn, if_exists='replace', index=False)
+conn.close()
+
+import shap
+import matplotlib.pyplot as plt
+plt.rcParams['font.family'] = 'Times New Roman'
+plt.rcParams['font.size'] = 14
+
+model.fit(X_train_balanced, y_train_balanced)
+
+explainer = shap.TreeExplainer(model)
+shap_values = explainer.shap_values(X_train_balanced)
+
+if isinstance(shap_values, list):
+ shap_values_to_plot = shap_values[1]
+else:
+ shap_values_to_plot = shap_values
+
+shap.summary_plot(shap_values_to_plot, X_train_balanced, feature_names=feature_names, max_display=32, show=False)
+
+fig = plt.gcf()
+fig.set_size_inches(3, 7)
+ax = plt.gca()
+ax.tick_params(axis='y', labelsize=14)
+for label in ax.get_xticklabels():
+ label.set_fontsize(14)
+for label in ax.get_yticklabels():
+ label.set_fontsize(14)
+ax.set_xlabel('SHAP value', fontsize=14)
+ax.set_ylabel(ax.get_ylabel(), fontsize=14)
+ax.set_xlim(-1, 1)
+plt.tight_layout() 
+
+plt.show()
