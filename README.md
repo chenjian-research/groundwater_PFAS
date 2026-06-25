@@ -54,14 +54,14 @@ Feature importance
 
 In the sixth cell, you can run the code to determine the relative contributions of each input feature.
 
-
 Prediction on riverine grid cells
 
-In the sixth cell, you can input the prediction dataset (Demo_prediction.csv) and run the code to predict pharmaceutical exceedance for E. coli in 223,152 global riverine grid cells.
+In the seventh cell, you can input the prediction dataset (ML_output.db) and run the code to predict PFAS exceedance in 10,921,280 groundwater grid cells.
 
-Global visualization
+Map visualization
 
-In the seventh cell, you can run the code to map the pharmaceutical exceedance for E. coli in global rivers at 2 km resolution.
+In the eighth cell, you can run the code to map the PFAS exceedance in European groundwater at 1 km resolution.
+
 
 The outputs from this demo will match the results presented in our manuscript.
 
@@ -73,4 +73,6 @@ Thank you for your interest in our work!
 
 Best wishes,
 
-Jian (chenjianhk@ust.hk)
+Jian Chen (PhD) 
+The Hong Kong University of Science and Technology
+Email: chenjianhk@ust.hk
