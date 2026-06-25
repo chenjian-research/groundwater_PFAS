@@ -31,25 +31,29 @@ We have provided a demonstration notebook (‘Demo for E. coli.ipynb’) and dat
 
 Step-by-Step Instructions:
 
-Model training and evaluation (take ‘Demo for E. coli.ipynb’ as an example)
+ 
+Dataset division
+In the first cell, you can load and run the code to input the training and test sets. all grid cells were grouped into 24 spatial blocks using the K-Means clustering algorithm based on their geographic coordinates. These blocks were randomly assigned to training (70%) and test (30%) sets. 
 
-In the first cell, you can load and run the code to input the training and test sets (‘Demo_ecoli.csv’). The code will train the XGBoost model and evaluate its performance using metrics such as accuracy, specificity, sensitivity, and AUC (area under the ROC curve).
+Model training and evaluation
+In the second cell, the code will train the XGBoost model and evaluate its performance using metrics such as accuracy, specificity, sensitivity, and AUC (area under the ROC curve).
+
 
 Plot ROC curve
 
-In the second cell, you can run the provided code to visualize the ROC curve and output the AUC value of the XGBoost model.
+In the third cell, you can run the provided code to visualize the ROC curve and output the AUC value of the XGBoost model.
+
+Determine the cutoff
+In the fourth cell, you can execute the code to identify the threshold point where sensitivity equals specificity.
 
 SHAP analysis
 
-The third cell runs SHAP (SHapley Additive exPlanations) analysis to further interpret the model.
+The fifth cell runs SHAP (SHapley Additive exPlanations) analysis to further interpret the model.
 
 Feature importance
 
-In the fourth cell, you can run the code to determine the relative contributions of each input feature.
+In the sixth cell, you can run the code to determine the relative contributions of each input feature.
 
-Threshold identification
-
-In the fifth cell, you can execute the code to identify the threshold point where sensitivity equals specificity.
 
 Prediction on riverine grid cells
 
