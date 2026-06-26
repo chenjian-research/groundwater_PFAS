@@ -30,7 +30,6 @@ Running the demo:
 We have provided a demonstration notebook (‘Europe_groundwater_PFAS_DEMO.ipynb’) and dataset files (‘traindata1.csv’) for training/testing and ‘ML_output.db’ for prediction. These allow you to reproduce our results for predicting PFAS exceedance in European groundwater at a 1 km resolution using the XGBoost model.
 
 Step-by-Step Instructions:
-
  
 Dataset division
 In the first cell, you can load and run the code to input the training and test sets. All grid cells were grouped into 24 spatial blocks using the K-Means clustering algorithm based on their geographic coordinates. These blocks were randomly assigned to training (70%) and test (30%) sets. 
