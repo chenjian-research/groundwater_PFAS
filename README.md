@@ -1,7 +1,7 @@
 Dada and code for the Manuscript entitled "Achieving a 25% reduction in PFAS exceedance areas in European groundwater through key point source mitigation"
 Overview
 
-In this manuscript, we developed an extreme gradient boosting (XGBoost) model to predict the probability of PFAS concentrations in groundwater exceeding the 100 ng/L EU Drinking Water Guideline. The machine-learning models were implemented in Jupyter Notebook (V.7.0.8) using Python 3.12.
+In this manuscript, we developed an extreme gradient boosting (XGBoost) model to predict the probability of PFAS concentrations in groundwater exceeding the 100 ng/L EU Drinking Water Guideline. The machine-learning model was implemented in Jupyter Notebook (V.7.0.8) using Python 3.12.
 
 Hardware requirements:
 
@@ -27,13 +27,13 @@ After installing Python and Jupyter Notebook, you need install the following Pyt
 
 Running the demo:
 
-We have provided a demonstration notebook (‘Demo for E. coli.ipynb’) and dataset files (‘Demo_ecoli.csv’  for training/testing and ‘Demo_prediction.csv’ (Demo_prediction.7z) for prediction). These allow you to reproduce our results for predicting PFAS exceedance in European groundwater at a 1 km resolution using the XGBoost model.
+We have provided a demonstration notebook (‘Europe_groundwater_PFAS_DEMO.ipynb’) and dataset files (‘traindata1.csv’) for training/testing and ‘ML_output.db’ for prediction. These allow you to reproduce our results for predicting PFAS exceedance in European groundwater at a 1 km resolution using the XGBoost model.
 
 Step-by-Step Instructions:
 
  
 Dataset division
-In the first cell, you can load and run the code to input the training and test sets. all grid cells were grouped into 24 spatial blocks using the K-Means clustering algorithm based on their geographic coordinates. These blocks were randomly assigned to training (70%) and test (30%) sets. 
+In the first cell, you can load and run the code to input the training and test sets. All grid cells were grouped into 24 spatial blocks using the K-Means clustering algorithm based on their geographic coordinates. These blocks were randomly assigned to training (70%) and test (30%) sets. 
 
 Model training and evaluation
 In the second cell, the code will train the XGBoost model and evaluate its performance using metrics such as accuracy, specificity, sensitivity, and AUC (area under the ROC curve).
@@ -41,7 +41,7 @@ In the second cell, the code will train the XGBoost model and evaluate its perfo
 
 Plot ROC curve
 
-In the third cell, you can run the provided code to visualize the ROC curve and output the AUC value of the XGBoost model.
+In the third cell, you can run the code to visualize the ROC curve and output the AUC value of the XGBoost model.
 
 Determine the cutoff
 In the fourth cell, you can execute the code to identify the threshold point where sensitivity equals specificity.
@@ -74,5 +74,7 @@ Thank you for your interest in our work!
 Best wishes,
 
 Jian Chen (PhD) 
+
 The Hong Kong University of Science and Technology
+
 Email: chenjianhk@ust.hk
