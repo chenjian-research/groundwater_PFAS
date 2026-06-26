@@ -1,4 +1,5 @@
-Dada and code for the Manuscript entitled "Achieving a 25% reduction in PFAS exceedance areas in European groundwater through key point source mitigation"
+Dada and code for the Manuscript entitled "Achieving a 25% reduction in PFAS exceedance areas in European groundwater through key point source mitigation" by Jian Chen, Xiangru Zhang*, Nigel Graham, Lee Blaney and Gang Yu.
+
 Overview
 
 In this manuscript, we developed an extreme gradient boosting (XGBoost) model to predict the probability of PFAS concentrations in groundwater exceeding the 100 ng/L EU Drinking Water Guideline. The machine-learning model was implemented in Jupyter Notebook (V.7.0.8) using Python 3.12.
