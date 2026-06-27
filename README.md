@@ -28,7 +28,7 @@ After installing Python and Jupyter Notebook, you need install the following Pyt
 
 Running the demo:
 
-We have provided a demonstration notebook (‘Europe_groundwater_PFAS_DEMO.ipynb’) and dataset files (‘traindata1.csv’) for training/testing and ‘ML_output.db’ for prediction. These allow you to reproduce our results for predicting PFAS exceedance in European groundwater at a 1 km resolution using the XGBoost model.
+We have provided a demonstration notebook (‘Europe_groundwater_PFAS_DEMO.ipynb’) and dataset files (‘traindata1.csv’) for training/testing and ‘ML_output.db’ (you can download from: https://pan.baidu.com/disk/main?from=homeFlow#/index?category=all&path=%2FPFAS_groundwater) for prediction. These allow you to reproduce our results for predicting PFAS exceedance in European groundwater at a 1 km resolution using the XGBoost model.
 
 Step-by-Step Instructions:
  
