@@ -63,7 +63,7 @@ Map visualization
 In the eighth cell, you can run the code to map the PFAS exceedance in European groundwater at 1 km resolution.
 
 
-The outputs from this demo will match the results presented in our manuscript.
+The outputs (Europe_groundwater_PFAS_DEMO.html) from this demo will match the results presented in our manuscript.
 
 Support and Feedback
 
