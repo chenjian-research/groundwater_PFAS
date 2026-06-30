@@ -24,7 +24,7 @@ Installing Python typically takes several minutes up to twenty minutes, dependin
 
 Package dependencies:
 
-After installing Python and Jupyter Notebook, you need install the following Python packages (if not already installed): pip install scikit-learn, xgboost, shap, matplotlib, pandas, numpy, statsmodels, imblearn, geopandas Installation may take approximately 10-20 minutes, depending on your internet speed and system specifications.
+After installing Python and Jupyter Notebook, you need install the following Python packages (if not already installed): pip install scikit-learn, xgboost, shap, matplotlib, pandas, numpy, statsmodels, imblearn, geopandas. Installation may take approximately 10-20 minutes, depending on your internet speed and system specifications.
 
 Running the demo:
 
