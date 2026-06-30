@@ -33,9 +33,11 @@ We have provided a demonstration notebook (‘Europe_groundwater_PFAS_DEMO.ipynb
 Step-by-Step Instructions:
  
 Dataset division
+
 In the first cell, you can load and run the code to input the training and test sets. All grid cells were grouped into 24 spatial blocks using the K-Means clustering algorithm based on their geographic coordinates. These blocks were randomly assigned to training (70%) and test (30%) sets. 
 
 Model training and evaluation
+
 In the second cell, the code will train the XGBoost model and evaluate its performance using metrics such as accuracy, specificity, sensitivity, and AUC (area under the ROC curve).
 
 
@@ -44,6 +46,7 @@ Plot ROC curve
 In the third cell, you can run the code to visualize the ROC curve and output the AUC value of the XGBoost model.
 
 Determine the cutoff
+
 In the fourth cell, you can execute the code to identify the threshold point where sensitivity equals specificity.
 
 SHAP analysis
