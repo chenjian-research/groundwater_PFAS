@@ -60,7 +60,7 @@ In the seventh cell, you can input the prediction dataset (ML_output.db) and run
 
 Map visualization
 
-In the eighth cell, you can run the code to map the PFAS exceedance in European groundwater at 1 km resolution.
+In the eighth cell, you can run the code to map the PFAS exceedance in European groundwater at 1 km resolution (europecountry3.shp and europe_1km_grid.shp can download from: https://pan.baidu.com/disk/main?from=homeFlow#/index?category=all&path=%2FPFAS_groundwater).
 
 
 The outputs (Europe_groundwater_PFAS_DEMO.html) from this demo will match the results presented in our manuscript.
