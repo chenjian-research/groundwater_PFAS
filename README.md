@@ -1,4 +1,4 @@
-Dada and code for the Manuscript entitled "Achieving a 25% reduction in PFAS exceedance areas in European groundwater through key point source mitigation" by Jian Chen, Xiangru Zhang*, Nigel Graham, Lee Blaney and Gang Yu.
+Dada and code for the manuscript entitled "Achieving a 25% reduction in PFAS exceedance areas in European groundwater through key point source mitigation" by Jian Chen, Xiangru Zhang*, Nigel Graham, Lee Blaney and Gang Yu.
 
 Overview
 
